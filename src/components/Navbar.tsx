@@ -59,7 +59,7 @@ export default function Navbar({ isAdmin }: NavbarProps) {
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollToSection("hero")}>
             <span className="h-6 w-1 bg-zinc-900 rounded-full" />
             <div className="text-sm font-bold tracking-tight text-zinc-900">
-              Product QA <span className="text-zinc-500 font-medium">Portfolio</span>
+              UpLog <span className="text-zinc-500 font-medium">Portfolio</span>
             </div>
             {isAdmin && (
               <span className="bg-blue-50 text-blue-600 rounded-full px-2 py-0.5 text-[10px] font-bold border border-blue-100 flex items-center gap-1 animate-pulse ml-2">
@@ -90,11 +90,6 @@ export default function Navbar({ isAdmin }: NavbarProps) {
 
           {/* Right Status Badge / Actions */}
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-400 font-mono tracking-tight bg-zinc-50 px-2.5 py-1 rounded-full border border-zinc-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              TOSS PROTOCOL QA V3.0
-            </div>
-
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

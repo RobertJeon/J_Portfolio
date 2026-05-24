@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   ArrowDown, 
   ArrowRight, 
@@ -20,7 +20,9 @@ import {
   Terminal,
   Activity,
   Maximize2,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { PortfolioData, CoreStrengthItem, DomainItem, CareerItem, CaseStudyItem, WorkingStyleItem } from "../types";
 import { motion } from "motion/react";
@@ -538,27 +540,97 @@ export function CaseStudies({ data }: SectionProps) {
 // ----------------------------------------------------------------------------
 export function WorkingStyle({ data }: SectionProps) {
   const activeItems = data.workingStyle.filter(item => item.visible !== false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (activeItems.length === 0) return null;
 
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const firstItem = container.firstElementChild as HTMLElement;
+    if (!firstItem) return;
+    const itemWidth = firstItem.offsetWidth + 24; // offsetWidth + gap (24px for gap-6)
+    const index = Math.round(container.scrollLeft / itemWidth);
+    if (index !== activeIndex && index >= 0 && index < activeItems.length) {
+      setActiveIndex(index);
+    }
+  };
+
+  const scrollToIndex = (index: number) => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const firstItem = container.firstElementChild as HTMLElement;
+    if (!firstItem) return;
+    const itemWidth = firstItem.offsetWidth + 24; // offsetWidth + gap
+    container.scrollTo({
+      left: index * itemWidth,
+      behavior: "smooth"
+    });
+    setActiveIndex(index);
+  };
+
   return (
     <section id="working-style" className="py-24 bg-white px-6 sm:px-8 lg:px-12">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <div className="text-center md:text-left">
-          <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Working Style</h2>
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Working Style</h2>
+          </div>
+          
+          {/* Slider Controllers */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => scrollToIndex(Math.max(0, activeIndex - 1))}
+              disabled={activeIndex === 0}
+              className="p-2 rounded-full border border-zinc-200 hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
+              aria-label="Previous style"
+            >
+              <ChevronLeft className="w-4 h-4 text-zinc-800" />
+            </button>
+            <button
+              onClick={() => scrollToIndex(Math.min(activeItems.length - 1, activeIndex + 1))}
+              disabled={activeIndex === activeItems.length - 1}
+              className="p-2 rounded-full border border-zinc-200 hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
+              aria-label="Next style"
+            >
+              <ChevronRight className="w-4 h-4 text-zinc-800" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {activeItems.map((style, idx) => (
-            <div 
-              key={style.id}
-              className="p-6 bg-zinc-50 border border-zinc-200 hover:border-zinc-350 rounded-xl space-y-3 shadow-inner hover:shadow-sm transition-all duration-300"
-            >
-              <div className="text-[9px] font-mono tracking-wider font-bold text-zinc-400">COLLAB VALUE 0{idx + 1}</div>
-              <h3 className="text-xs font-bold text-zinc-950 leading-snug font-display">{style.title}</h3>
-              <p className="text-xs text-zinc-550 leading-relaxed font-normal">{style.description}</p>
-            </div>
-          ))}
+        {/* Scrollable track wrapper */}
+        <div className="relative">
+          <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 select-none no-scrollbar scroll-smooth -mx-6 px-6 sm:mx-0 sm:px-0"
+          >
+            {activeItems.map((style, idx) => (
+              <div 
+                key={style.id}
+                className="flex-shrink-0 w-[80vw] sm:w-[350px] md:w-[280px] snap-start p-6 bg-zinc-50 border border-zinc-200 hover:border-zinc-350 rounded-xl space-y-3 shadow-inner hover:shadow-sm transition-all duration-300"
+              >
+                <div className="text-[9px] font-mono tracking-wider font-bold text-zinc-400">COLLAB VALUE 0{idx + 1}</div>
+                <h3 className="text-xs font-bold text-zinc-950 leading-snug font-display">{style.title}</h3>
+                <p className="text-xs text-zinc-550 leading-relaxed font-normal">{style.description}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Dots indicating scroll position */}
+          <div className="flex justify-center gap-1.5 mt-4">
+            {activeItems.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => scrollToIndex(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeIndex === idx ? "w-6 bg-zinc-850" : "w-1.5 bg-zinc-200"
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
