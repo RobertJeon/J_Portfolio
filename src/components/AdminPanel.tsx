@@ -220,10 +220,23 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      updateProject(index, { imageUrl: reader.result as string });
-      showTemporarySuccess("이미지가 임시 저장(Base64 인코딩)되었습니다.");
+      const current = data.projects[index].imageUrl || "";
+      const base64 = reader.result as string;
+      const updated = current ? `${current}\n${base64}` : base64;
+      updateProject(index, { imageUrl: updated });
+      showTemporarySuccess("이미지가 추가(Base64 인코딩)되었습니다.");
     };
     reader.readAsDataURL(file);
+  };
+
+  const deleteProjectImage = (projIdx: number, imgIdx: number) => {
+    const proj = data.projects[projIdx];
+    const images = proj.imageUrl
+      ? proj.imageUrl.split(/[|\n]+/).map(img => img.trim()).filter(Boolean)
+      : [];
+    const updatedImages = images.filter((_, idx) => idx !== imgIdx);
+    updateProject(projIdx, { imageUrl: updatedImages.join("\n") });
+    showTemporarySuccess("선택한 이미지가 삭제되었습니다.");
   };
 
   const addNewProject = () => {
@@ -804,63 +817,60 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
                             {proj.visible !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                           </button>
                           <button
+                            type="button"
                             onClick={() => deleteProject(idx)}
-                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                            title="삭제"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[10px] text-zinc-500">경영/해결 기여 중량 비중 (예: 60%, 25%)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div className="md:col-span-1">
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">경영/해결 기여 중량 비중 (예: 60%)</label>
                           <input
                             type="text"
                             value={proj.ratio}
                             onChange={(e) => updateProject(idx, { ratio: e.target.value })}
-                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-bold"
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-bold bg-white"
+                            placeholder="60%"
+                          />
+                        </div>
+                        <div className="md:col-span-3">
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">주요 쟁점 / 헤드라인</label>
+                          <input
+                            type="text"
+                            value={proj.subtitle}
+                            onChange={(e) => updateProject(idx, { subtitle: e.target.value })}
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-semibold text-zinc-800 bg-white"
+                            placeholder="주요 쟁점 및 해결 목표를 입력해주세요"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">Problem (문제 상황)</label>
+                          <textarea
+                            rows={3}
+                            value={proj.problem}
+                            onChange={(e) => updateProject(idx, { problem: e.target.value })}
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white"
+                            placeholder="어떤 문제 상황이 발생했는지 편하게 서술해주세요"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] text-zinc-500">사례 대분류 (예: KB증권 운영 QA)</label>
-                          <input
-                            type="text"
-                            value={proj.title}
-                            onChange={(e) => updateProject(idx, { title: e.target.value })}
-                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded"
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">Challenge (장애 극복 허들)</label>
+                          <textarea
+                            rows={3}
+                            value={proj.challenge}
+                            onChange={(e) => updateProject(idx, { challenge: e.target.value })}
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white"
+                            placeholder="해결하는 데 있어서 장애 요소나 한계점이 무엇이었나요?"
                           />
                         </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] text-zinc-550">주요 쟁점 / 헤드라인</label>
-                        <input
-                          type="text"
-                          value={proj.subtitle}
-                          onChange={(e) => updateProject(idx, { subtitle: e.target.value })}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-semibold text-zinc-800"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] text-zinc-500">Problem (문제 상황)</label>
-                        <textarea
-                          rows={2}
-                          value={proj.problem}
-                          onChange={(e) => updateProject(idx, { problem: e.target.value })}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed font-sans"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] text-zinc-500">Challenge (장애 극복 허들)</label>
-                        <textarea
-                          rows={2}
-                          value={proj.challenge}
-                          onChange={(e) => updateProject(idx, { challenge: e.target.value })}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed"
-                        />
                       </div>
 
                       <div>
@@ -899,68 +909,87 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
                         <span className="text-[10px] font-mono font-bold text-zinc-400 block uppercase tracking-wider">PROJECT DELIVERABLES & PROOF OF WORK (선택)</span>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Image Attachment widget */}
-                          <div className="space-y-2 p-3 bg-zinc-50 rounded-lg border border-zinc-150">
-                            <label className="block text-[10px] font-bold text-zinc-650">작업 파일/스크린샷 업로드 (실행 검증 화면)</label>
-                            
-                            {proj.imageUrl && (
-                              <div className="relative aspect-video w-36 border border-zinc-200 rounded overflow-hidden bg-white mb-2 shadow-sm">
-                                <img src={proj.imageUrl} alt="attached preview" className="w-full h-full object-cover" />
-                                <button
-                                  type="button"
-                                  onClick={() => updateProject(idx, { imageUrl: "" })}
-                                  className="absolute top-1 right-1 bg-black/75 hover:bg-black text-white hover:scale-105 rounded-full p-1 cursor-pointer transition-all"
-                                  title="첨부 파일 삭제"
-                                >
-                                  <X className="w-2.5 h-2.5" />
-                                </button>
+                          {(() => {
+                            const projImages = proj.imageUrl
+                              ? proj.imageUrl.split(/[|\n]+/).map((img) => img.trim()).filter(Boolean)
+                              : [];
+                            return (
+                              <div className="space-y-2.5 p-3 bg-zinc-50 rounded-lg border border-zinc-150">
+                                <div className="flex items-center justify-between">
+                                  <label className="block text-[10px] font-bold text-zinc-650">작업 파일/스크린샷 업로드 (실행 검증 화면)</label>
+                                  <span className="text-[9px] font-mono font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 select-none">
+                                    추가된 이미지: {projImages.length}개
+                                  </span>
+                                </div>
+                                
+                                {projImages.length > 0 && (
+                                  <div className="grid grid-cols-3 gap-2 p-2 bg-zinc-105 rounded-lg border border-zinc-200">
+                                    {projImages.map((imgSrc, imgIdx) => (
+                                      <div key={imgIdx} className="relative aspect-video border border-zinc-200 rounded overflow-hidden bg-white shadow-xs group">
+                                        <img src={imgSrc} alt={`attached preview ${imgIdx + 1}`} className="w-full h-full object-cover" />
+                                        <button
+                                          type="button"
+                                          onClick={() => deleteProjectImage(idx, imgIdx)}
+                                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                          title="이 이미지 삭제"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5 text-white" />
+                                        </button>
+                                        <div className="absolute bottom-1 left-1 px-1 bg-black/65 rounded text-[8px] font-mono font-bold text-white select-none">
+                                          #{imgIdx + 1}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <div className="space-y-1.5">
+                                  <input
+                                    id={`file-upload-${proj.id}`}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0] || null;
+                                      handleImageUpload(idx, file);
+                                    }}
+                                    className="w-full text-[10px] text-zinc-550 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border file:border-zinc-250 file:font-semibold file:bg-white file:text-zinc-700 hover:file:bg-zinc-50 cursor-pointer"
+                                  />
+                                  <p className="text-[9px] text-zinc-450 leading-normal">
+                                    * 기획서 캡처본, 로그 등 이미지를 추가하면 목록에 계속 누적(Append)됩니다.
+                                  </p>
+                                </div>
+
+                                <textarea
+                                  rows={2}
+                                  value={proj.imageUrl || ""}
+                                  onChange={(e) => updateProject(idx, { imageUrl: e.target.value })}
+                                  placeholder="직접 이미지 웹 주소 (줄바꿈 또는 | 기호로 여러 장 등록 가능)"
+                                  className="w-full text-[10px] px-2.5 py-1.5 border border-zinc-200 rounded focus:outline-none font-mono leading-normal"
+                                />
                               </div>
-                            )}
-
-                            <div className="space-y-1">
-                              <input
-                                id={`file-upload-${proj.id}`}
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0] || null;
-                                  handleImageUpload(idx, file);
-                                }}
-                                className="w-full text-[10px] text-zinc-550 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border file:border-zinc-250 file:font-semibold file:bg-white file:text-zinc-700 hover:file:bg-zinc-50 cursor-pointer"
-                              />
-                              <p className="text-[9px] text-zinc-450 leading-none">
-                                * 기획서 캡쳐본, Charles proxy 로그 덤프 등 이미지 파일을 직접 드래그/선택하면 로컬 상태에 내장됩니다.
-                              </p>
-                            </div>
-
-                            <input
-                              type="text"
-                              value={proj.imageUrl || ""}
-                              onChange={(e) => updateProject(idx, { imageUrl: e.target.value })}
-                              placeholder="직접 이미지 웹 주소 (HTTPS URL) 입력도 가능"
-                              className="w-full text-[10px] px-2.5 py-1 border border-zinc-200 rounded focus:outline-none"
-                            />
-                          </div>
+                            );
+                          })()}
 
                           {/* Outer Link Connect Widget */}
-                          <div className="space-y-2 p-3 bg-zinc-50 rounded-lg border border-zinc-150">
-                            <label className="block text-[10px] font-bold text-zinc-650">외부 위키 / 저장소 / 노션 온라인 문서 증빙</label>
-                            <div className="space-y-1.5Packed">
+                          <div className="space-y-2 p-3 bg-zinc-50 rounded-lg border border-zinc-150 font-sans">
+                            <label className="block text-[10px] font-bold text-zinc-650 font-sans">외부 위키 / 저장소 / 노션 온라인 문서 증빙 (선택)</label>
+                            <div className="space-y-1.5">
                               <input
                                 type="text"
                                 value={proj.externalLink || ""}
                                 onChange={(e) => updateProject(idx, { externalLink: e.target.value })}
                                 placeholder="http:// 또는 https:// 로 시작하는 절대 경로 주소"
-                                className="w-full text-[11px] px-2.5 py-1 border border-zinc-200 rounded font-mono focus:outline-none"
+                                className="w-full text-[11px] px-2.5 py-1 border border-zinc-200 rounded font-mono focus:outline-none bg-white font-sans text-zinc-700"
                               />
                               <input
                                 type="text"
                                 value={proj.linkText || ""}
                                 onChange={(e) => updateProject(idx, { linkText: e.target.value })}
                                 placeholder="연결 버튼 라벨명 (예: Charles Proxy 패킷 복제본)"
-                                className="w-full text-[11px] px-2.5 py-1 border border-zinc-200 rounded focus:outline-none"
+                                className="w-full text-[11px] px-2.5 py-1 border border-zinc-200 rounded font-semibold text-zinc-800 focus:outline-none bg-white font-sans"
                               />
                               <p className="text-[9px] text-zinc-450 leading-relaxed font-sans">
-                                위 링크를 입력하면 포트폴리오 메인 화면에서 "산출물 문서" 연결이 활성화되어 방문자가 직접 본인 작업물에 접근할 수 있게 됩니다.
+                                위 링크를 입력하면 포트폴리오 메인 화면에서 "참고참조 링크" 연결이 활성화되어 방문자가 본사 증빙 또는 저장소를 직접 검증할 수 있습니다.
                               </p>
                             </div>
                           </div>

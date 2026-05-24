@@ -335,12 +335,25 @@ export function CareerTimeline({ data }: SectionProps) {
 export function CaseStudies({ data }: SectionProps) {
   const activeItems = data.projects.filter(item => item.visible !== false);
   const [activeTab, setActiveTab] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   if (activeItems.length === 0) return null;
 
   // Protect safe active indexing
   const safeIndex = activeTab >= activeItems.length ? 0 : activeTab;
   const currentProject = activeItems[safeIndex];
+
+  // Reset active image index on tab change
+  React.useEffect(() => {
+    setActiveImageIndex(0);
+  }, [safeIndex]);
+
+  const images = currentProject.imageUrl
+    ? currentProject.imageUrl
+        .split(/[,\n|]+/)
+        .map((img) => img.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <section id="projects" className="py-24 bg-zinc-50 border-y border-zinc-200/50 px-6 sm:px-8 lg:px-12">
@@ -392,73 +405,115 @@ export function CaseStudies({ data }: SectionProps) {
               </h4>
 
               {/* Uploaded View Image & Document Links - Premium Showcase Block */}
-              {(currentProject.imageUrl || currentProject.externalLink) && (
+              {(images.length > 0 || currentProject.externalLink) && (
                 <div className="p-5 bg-zinc-50 rounded-xl border border-zinc-200 space-y-4">
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-zinc-800 uppercase tracking-widest">
-                    <span className="w-1 h-3.5 bg-blue-600 rounded-sm shrink-0" />
-                    작업 증명 및 검증 산출물 (Proof of Work)
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-zinc-800 uppercase tracking-widest">
+                      <span className="w-1 h-3.5 bg-blue-600 rounded-sm shrink-0" />
+                      작업 증명 및 검증 산출물 (Proof of Work)
+                    </span>
+                    {images.length > 1 && (
+                      <span className="text-[10px] font-mono text-zinc-500 font-bold select-none">
+                        총 {images.length}장의 스크린샷 ∙ 좌우 스와이프 가능
+                      </span>
+                    )}
+                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+                  <div className="space-y-3.5">
                     {/* View Image Box */}
-                    {currentProject.imageUrl ? (
-                      <div className="bg-white border border-zinc-200/80 p-3.5 rounded-lg flex flex-col justify-between">
+                    {images.length > 0 ? (
+                      <div className="bg-white border border-zinc-200/85 p-3.5 rounded-xl">
                         <span className="text-[10px] text-zinc-400 font-mono font-bold block mb-2 font-mono">실제 검증 화면 / 구성 덤프</span>
-                        <div className="aspect-video w-full rounded-md bg-zinc-100 overflow-hidden relative border border-zinc-200/60 group select-none flex-1 min-h-[145px]">
+                        
+                        <div className="relative aspect-[16/10] w-full rounded-lg bg-zinc-100 overflow-hidden border border-zinc-200/60 group shadow-sm flex items-center justify-center select-none">
                           <img 
-                            src={currentProject.imageUrl} 
-                            alt={currentProject.title}
+                            src={images[activeImageIndex]} 
+                            alt={`${currentProject.title} image ${activeImageIndex + 1}`}
                             referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                            className="w-full h-full object-cover transition-transform duration-300"
                           />
+
+                          {/* Top Left Slide Number Indicator */}
+                          {images.length > 1 && (
+                            <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 rounded text-[9px] font-mono font-bold text-white tracking-wider select-none">
+                              IMG {activeImageIndex + 1} / {images.length}
+                            </div>
+                          )}
+
+                          {/* Top Right Maximize Link */}
                           <a 
-                            href={currentProject.imageUrl} 
+                            href={images[activeImageIndex]} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white font-semibold text-xs rounded"
+                            className="absolute top-3 right-3 p-1.5 bg-black/65 hover:bg-black text-white hover:scale-105 rounded-md cursor-pointer transition-all z-10 flex items-center justify-center"
+                            title="원본 이미지 보기"
                           >
                             <Maximize2 className="w-3.5 h-3.5" />
-                            원본 이미지 보기
                           </a>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-zinc-100/50 border border-dashed border-zinc-200 p-6 rounded-lg flex flex-col items-center justify-center text-center space-y-2 min-h-[160px]">
-                        <span className="text-zinc-350 text-xs font-semibold">업로드된 스크린샷 없음</span>
-                        <p className="text-[10px] text-zinc-400 max-w-xs font-sans">
-                          이 프로젝트에 첨부된 스크린샷이 아직 없습니다. 어드민 모드에서 본인의 실행 화면을 인코딩해 저장하십시오.
-                        </p>
-                      </div>
-                    )}
 
-                    {/* Outer Link Connect Box */}
-                    {currentProject.externalLink ? (
-                      <div className="bg-white border border-zinc-200/80 p-4.5 rounded-lg flex flex-col justify-between min-h-[160px]">
-                        <div className="space-y-1">
-                          <span className="text-[10px] text-zinc-400 font-mono font-bold block">연동된 온라인 문서 및 저장소</span>
-                          <h5 className="text-[13px] font-bold text-zinc-900 leading-tight">
-                            {currentProject.linkText || "자동화 도구 / 검증 분석 대시보드"}
-                          </h5>
-                          <p className="text-[11px] text-zinc-500 leading-normal font-sans">
-                            작성한 검증 계획서, 패킷 로그, 테스트 자동화 코드 혹은 보고서가 바로가기 형태로 연결됩니다.
-                          </p>
+                          {/* Floating Chevrons */}
+                          {images.length > 1 && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+                                }}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-850 hover:scale-105 active:scale-95 shadow-md border border-zinc-200/50 cursor-pointer transition-all z-10"
+                                aria-label="Previous image"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setActiveImageIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-850 hover:scale-105 active:scale-95 shadow-md border border-zinc-200/50 cursor-pointer transition-all z-10"
+                                aria-label="Next image"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+
+                          {/* Bottom Indicator Dots */}
+                          {images.length > 1 && (
+                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xs z-10 select-none">
+                              {images.map((_, dotIdx) => (
+                                <button
+                                  key={dotIdx}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setActiveImageIndex(dotIdx);
+                                  }}
+                                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                                    activeImageIndex === dotIdx ? "w-4 bg-white" : "w-1.5 bg-white/50"
+                                  }`}
+                                  aria-label={`Go to slide ${dotIdx + 1}`}
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
+                      </div>
+                    ) : null}
+
+                    {/* Outer Link Connect Box - ONLY showing reference button */}
+                    {currentProject.externalLink && (
+                      <div className="flex justify-center pt-2">
                         <a
                           href={currentProject.externalLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full mt-3 py-2 px-4 bg-zinc-900 hover:bg-black text-white text-[11px] font-bold rounded flex items-center justify-center gap-1.5 shadow transition-all duration-150"
+                          className="flex items-center justify-center gap-2 py-2.5 px-6 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all duration-150 cursor-pointer"
                         >
+                          <span>참고링크 열기</span>
                           <ArrowRight className="w-3.5 h-3.5" />
-                          <span>링크 열기 : {currentProject.linkText || "산출물 문서"}</span>
                         </a>
-                      </div>
-                    ) : (
-                      <div className="bg-zinc-100/50 border border-dashed border-zinc-200 p-6 rounded-lg flex flex-col items-center justify-center text-center space-y-2 min-h-[160px]">
-                        <span className="text-zinc-350 text-xs font-semibold">설정된 외부 연결 URL 없음</span>
-                        <p className="text-[10px] text-zinc-400 max-w-xs font-sans">
-                          어드민 편집판을 열어 본인의 깃허브, 지라, 노션 페이지 등 외부 리소스 증빙 구성을 추가해보십시오.
-                        </p>
                       </div>
                     )}
                   </div>
