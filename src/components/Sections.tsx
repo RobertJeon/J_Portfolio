@@ -76,7 +76,7 @@ export function HeroSection({ data }: SectionProps) {
 
         {/* Keyword Tags */}
         <div className="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto">
-          {data.hero.tags.map((tag, idx) => (
+          {data.hero.tags.filter(Boolean).map((tag, idx) => (
             <span 
               key={idx}
               className="px-2.5 py-1 bg-zinc-50 border border-zinc-200 text-zinc-800 text-[11px] font-semibold rounded-md font-mono"
@@ -300,8 +300,8 @@ export function CareerTimeline({ data }: SectionProps) {
                               Key Achievements & QA Milestones
                             </span>
                             <div className="grid grid-cols-1 gap-2.5">
-                              {item.achievements && item.achievements.length > 0 ? (
-                                item.achievements.map((achievement, aIdx) => (
+                              {item.achievements && item.achievements.filter(Boolean).length > 0 ? (
+                                item.achievements.filter(Boolean).map((achievement, aIdx) => (
                                   <div 
                                     key={aIdx} 
                                     className="p-3 bg-white border border-zinc-200/80 rounded-lg hover:border-zinc-350 transition-all flex items-start gap-2.5 shadow-xs"
@@ -494,7 +494,7 @@ export function CaseStudies({ data }: SectionProps) {
                   Approach & Investigative Actions
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {currentProject.approach.map((step, sIdx) => (
+                  {currentProject.approach.filter(Boolean).map((step, sIdx) => (
                     <div key={sIdx} className="p-4 bg-zinc-50 border border-zinc-150/80 rounded-lg text-xs flex gap-3 items-start hover:border-zinc-300 transition-colors">
                       <span className="w-5 h-5 rounded-full bg-zinc-200/80 text-zinc-700 font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
                         {sIdx + 1}

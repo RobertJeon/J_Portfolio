@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Lock, 
   Unlock, 
@@ -41,6 +41,13 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
   const [activeTab, setActiveTab] = useState<"hero" | "strengths" | "domain" | "career" | "projects" | "style" | "json">("hero");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [localTags, setLocalTags] = useState("");
+
+  useEffect(() => {
+    if (data.hero && data.hero.tags) {
+      setLocalTags(data.hero.tags.join(", "));
+    }
+  }, [data.hero.tags]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +177,7 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
   };
 
   const updateCareerAchievements = (index: number, valueString: string) => {
-    const lines = valueString.split("\n").map(l => l.trim()).filter(Boolean);
+    const lines = valueString.split("\n");
     updateCareer(index, { achievements: lines });
   };
 
@@ -205,7 +212,7 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
   };
 
   const updateProjectApproach = (index: number, valueString: string) => {
-    const lines = valueString.split("\n").map(l => l.trim()).filter(Boolean);
+    const lines = valueString.split("\n");
     updateProject(index, { approach: lines });
   };
 
@@ -510,8 +517,12 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
                       <label className="block text-[11px] text-zinc-500 mb-1 font-semibold">브랜딩 키워드 태그 (쉼표구분)</label>
                       <input
                         type="text"
-                        value={data.hero.tags.join(", ")}
-                        onChange={(e) => updateHero("tags", e.target.value.split(",").map(t => t.trim()).filter(Boolean))}
+                        value={localTags}
+                        onChange={(e) => {
+                          setLocalTags(e.target.value);
+                          const parsed = e.target.value.split(",").map(t => t.trim()).filter(Boolean);
+                          updateHero("tags", parsed);
+                        }}
                         className="w-full text-xs px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900 font-mono"
                       />
                     </div>
@@ -775,8 +786,17 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
                       } space-y-3 shadow-sm`}
                     >
                       <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
-                        <span className="text-xs font-bold text-blue-600">Case 0{idx + 1}. {proj.title}</span>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0 mr-4">
+                          <span className="text-xs font-bold text-blue-600 shrink-0 select-none">Case 0{idx + 1}.</span>
+                          <input
+                            type="text"
+                            value={proj.title}
+                            onChange={(e) => updateProject(idx, { title: e.target.value })}
+                            className="text-xs font-bold text-blue-600 bg-transparent hover:bg-zinc-100/50 focus:bg-zinc-50 focus:ring-1 focus:ring-blue-400 focus:outline-none rounded px-1.5 py-0.5 w-full border border-transparent focus:border-zinc-200 transition-all font-sans"
+                            placeholder="프로젝트 대분류를 입력해주세요"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             onClick={() => updateProject(idx, { visible: proj.visible === false ? true : false })}
                             className="p-1 text-zinc-400 hover:text-zinc-600"
