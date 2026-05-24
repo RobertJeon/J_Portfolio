@@ -26,6 +26,27 @@ import { PortfolioData, CoreStrengthItem, DomainItem, CareerItem, CaseStudyItem,
 import { defaultPortfolioData } from "../data";
 import { motion, AnimatePresence } from "motion/react";
 
+const formatImageUrl = (url: string): string => {
+  if (!url) return "";
+  const trimmedUrl = url.trim();
+  
+  if (trimmedUrl.includes("drive.google.com") || trimmedUrl.includes("docs.google.com")) {
+    // 1. Check for standard path format: /d/([a-zA-Z0-9_-]{28,45})
+    const dMatch = trimmedUrl.match(/\/d\/([a-zA-Z0-9_-]{28,45})/);
+    if (dMatch && dMatch[1]) {
+      return `https://drive.google.com/thumbnail?id=${dMatch[1]}&sz=w1600`;
+    }
+    
+    // 2. Check for id query parameter format: id=([a-zA-Z0-9_-]{28,45})
+    const idMatch = trimmedUrl.match(/[?&]id=([a-zA-Z0-9_-]{28,45})/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1600`;
+    }
+  }
+  
+  return trimmedUrl;
+};
+
 interface AdminPanelProps {
   data: PortfolioData;
   onChange: (newData: PortfolioData) => void;
@@ -232,7 +253,7 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
   const deleteProjectImage = (projIdx: number, imgIdx: number) => {
     const proj = data.projects[projIdx];
     const images = proj.imageUrl
-      ? proj.imageUrl.split(/[|\n]+/).map(img => img.trim()).filter(Boolean)
+      ? proj.imageUrl.split(/[\s,;|]+/).map(img => img.trim()).filter(Boolean)
       : [];
     const updatedImages = images.filter((_, idx) => idx !== imgIdx);
     updateProject(projIdx, { imageUrl: updatedImages.join("\n") });
@@ -867,105 +888,100 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
                             rows={3}
                             value={proj.challenge}
                             onChange={(e) => updateProject(idx, { challenge: e.target.value })}
-                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white"
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white font-sans"
                             placeholder="해결하는 데 있어서 장애 요소나 한계점이 무엇이었나요?"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-[10px] text-zinc-500">Approach & Investigative Procedures (줄바꿈 구분)</label>
+                        <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">Approach & Investigative Procedures (줄바꿈 구분)</label>
                         <textarea
                           rows={4}
                           value={proj.approach.join("\n")}
                           onChange={(e) => updateProjectApproach(idx, e.target.value)}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-sans leading-relaxed"
+                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded font-sans leading-relaxed bg-white"
                           placeholder="구체적인 가치 도구 추적 시나리오를 한 줄씩 쓰십시오."
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] text-zinc-500">Result (반사 효과 및 정합 개선)</label>
-                        <textarea
-                          rows={2}
-                          value={proj.result}
-                          onChange={(e) => updateProject(idx, { result: e.target.value })}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed"
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">Result (반사 효과 및 정합 개선)</label>
+                          <textarea
+                            rows={3}
+                            value={proj.result}
+                            onChange={(e) => updateProject(idx, { result: e.target.value })}
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white font-sans"
+                            placeholder="해결 성과와 개선 성과가 어땠는지 기록해주세요"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-zinc-500 mb-1 font-semibold">What I Learned (학습 교훈)</label>
+                          <textarea
+                            rows={3}
+                            value={proj.learned}
+                            onChange={(e) => updateProject(idx, { learned: e.target.value })}
+                            className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed bg-white italic font-sans"
+                            placeholder="이번 사례를 통해 배운 교훈은 무엇인가요?"
+                          />
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] text-zinc-500">What I Learned (학습 교훈)</label>
-                        <textarea
-                          rows={2}
-                          value={proj.learned}
-                          onChange={(e) => updateProject(idx, { learned: e.target.value })}
-                          className="w-full text-xs px-3 py-1.5 border border-zinc-200 rounded leading-relaxed italic"
-                        />
-                      </div>
-
-                      {/* Dynamic File Upload / Image attachment & External Document Link attachment */}
+                      {/* Dynamic Image Link & External Link widgets */}
                       <div className="pt-4 border-t border-zinc-100 space-y-3">
                         <span className="text-[10px] font-mono font-bold text-zinc-400 block uppercase tracking-wider">PROJECT DELIVERABLES & PROOF OF WORK (선택)</span>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Image Attachment widget */}
                           {(() => {
                             const projImages = proj.imageUrl
-                              ? proj.imageUrl.split(/[|\n]+/).map((img) => img.trim()).filter(Boolean)
+                              ? proj.imageUrl.split(/[\s,;|]+/).map((img) => img.trim()).filter(Boolean)
                               : [];
                             return (
                               <div className="space-y-2.5 p-3 bg-zinc-50 rounded-lg border border-zinc-150">
                                 <div className="flex items-center justify-between">
-                                  <label className="block text-[10px] font-bold text-zinc-650">작업 파일/스크린샷 업로드 (실행 검증 화면)</label>
+                                  <label className="block text-[10px] font-bold text-zinc-650">구글 드라이브 또는 웹 이미지 링크 (목록)</label>
                                   <span className="text-[9px] font-mono font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 select-none">
-                                    추가된 이미지: {projImages.length}개
+                                    등록된 이미지: {projImages.length}개
                                   </span>
                                 </div>
                                 
                                 {projImages.length > 0 && (
-                                  <div className="grid grid-cols-3 gap-2 p-2 bg-zinc-105 rounded-lg border border-zinc-200">
-                                    {projImages.map((imgSrc, imgIdx) => (
-                                      <div key={imgIdx} className="relative aspect-video border border-zinc-200 rounded overflow-hidden bg-white shadow-xs group">
-                                        <img src={imgSrc} alt={`attached preview ${imgIdx + 1}`} className="w-full h-full object-cover" />
-                                        <button
-                                          type="button"
-                                          onClick={() => deleteProjectImage(idx, imgIdx)}
-                                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                                          title="이 이미지 삭제"
-                                        >
-                                          <Trash2 className="w-3.5 h-3.5 text-white" />
-                                        </button>
-                                        <div className="absolute bottom-1 left-1 px-1 bg-black/65 rounded text-[8px] font-mono font-bold text-white select-none">
-                                          #{imgIdx + 1}
+                                  <div className="grid grid-cols-3 gap-2 p-2 bg-zinc-200/50 rounded-lg border border-zinc-150">
+                                    {projImages.map((imgSrc, imgIdx) => {
+                                      const formattedSrc = formatImageUrl(imgSrc);
+                                      return (
+                                        <div key={imgIdx} className="relative aspect-video border border-zinc-200 rounded overflow-hidden bg-white shadow-xs group">
+                                          <img src={formattedSrc} alt={`attached preview ${imgIdx + 1}`} className="w-full h-full object-cover" />
+                                          <button
+                                            type="button"
+                                            onClick={() => deleteProjectImage(idx, imgIdx)}
+                                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                            title="이 이미지 삭제"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5 text-white" />
+                                          </button>
+                                          <div className="absolute bottom-1 left-1 px-1 bg-black/65 rounded text-[8px] font-mono font-bold text-white select-none">
+                                            #{imgIdx + 1}
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
+                                      );
+                                    })}
                                   </div>
                                 )}
 
-                                <div className="space-y-1.5">
-                                  <input
-                                    id={`file-upload-${proj.id}`}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0] || null;
-                                      handleImageUpload(idx, file);
-                                    }}
-                                    className="w-full text-[10px] text-zinc-550 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border file:border-zinc-250 file:font-semibold file:bg-white file:text-zinc-700 hover:file:bg-zinc-50 cursor-pointer"
+                                <div className="space-y-2">
+                                  <textarea
+                                    rows={3}
+                                    value={proj.imageUrl || ""}
+                                    onChange={(e) => updateProject(idx, { imageUrl: e.target.value })}
+                                    placeholder="구글 드라이브 공유 링크(https://drive.google.com/...) 또는 일반 이미지 URL 주소를 줄바꿈(Enter)으로 구분하여 입력하십시오."
+                                    className="w-full text-[10px] px-2.5 py-1.5 border border-zinc-200 rounded focus:outline-none font-mono leading-normal bg-white"
                                   />
-                                  <p className="text-[9px] text-zinc-450 leading-normal">
-                                    * 기획서 캡처본, 로그 등 이미지를 추가하면 목록에 계속 누적(Append)됩니다.
+                                  <p className="text-[9px] text-zinc-500 leading-normal font-sans">
+                                    💡 <strong>구글 드라이브 팁:</strong> 드라이브에서 <u>공유 ➡️ 링크가 있는 모든 사용자 (뷰어 권한)</u>로 설정한 뒤의 주소를 붙여넣어 주시면, 포트폴리오에서 실시간 최적화 보기로 자동 변환되어 안전하게 투영됩니다!
                                   </p>
                                 </div>
-
-                                <textarea
-                                  rows={2}
-                                  value={proj.imageUrl || ""}
-                                  onChange={(e) => updateProject(idx, { imageUrl: e.target.value })}
-                                  placeholder="직접 이미지 웹 주소 (줄바꿈 또는 | 기호로 여러 장 등록 가능)"
-                                  className="w-full text-[10px] px-2.5 py-1.5 border border-zinc-200 rounded focus:outline-none font-mono leading-normal"
-                                />
                               </div>
                             );
                           })()}

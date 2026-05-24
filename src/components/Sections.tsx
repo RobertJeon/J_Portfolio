@@ -332,6 +332,28 @@ export function CareerTimeline({ data }: SectionProps) {
 // ----------------------------------------------------------------------------
 // 5. FEATURED PROJECT CASE STUDIES (KB증권 60%, 더한섬 25%, EQL 15% 기여 비중 표기)
 // ----------------------------------------------------------------------------
+// Google Drive link formatter to covert shared links to direct viewable URLs safely
+const formatImageUrl = (url: string): string => {
+  if (!url) return "";
+  const trimmedUrl = url.trim();
+  
+  if (trimmedUrl.includes("drive.google.com") || trimmedUrl.includes("docs.google.com")) {
+    // 1. Check for standard path format: /d/([a-zA-Z0-9_-]{28,45})
+    const dMatch = trimmedUrl.match(/\/d\/([a-zA-Z0-9_-]{28,45})/);
+    if (dMatch && dMatch[1]) {
+      return `https://drive.google.com/thumbnail?id=${dMatch[1]}&sz=w1600`;
+    }
+    
+    // 2. Check for id query parameter format: id=([a-zA-Z0-9_-]{28,45})
+    const idMatch = trimmedUrl.match(/[?&]id=([a-zA-Z0-9_-]{28,45})/);
+    if (idMatch && idMatch[1]) {
+      return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1600`;
+    }
+  }
+  
+  return trimmedUrl;
+};
+
 export function CaseStudies({ data }: SectionProps) {
   const activeItems = data.projects.filter(item => item.visible !== false);
   const [activeTab, setActiveTab] = useState(0);
@@ -350,10 +372,13 @@ export function CaseStudies({ data }: SectionProps) {
 
   const images = currentProject.imageUrl
     ? currentProject.imageUrl
-        .split(/[,\n|]+/)
+        .split(/[\s,;|]+/)
         .map((img) => img.trim())
         .filter(Boolean)
+        .map(formatImageUrl)
     : [];
+
+  const hasLink = !!(currentProject.externalLink && currentProject.externalLink.trim());
 
   return (
     <section id="projects" className="py-24 bg-zinc-50 border-y border-zinc-200/50 px-6 sm:px-8 lg:px-12">
@@ -405,7 +430,7 @@ export function CaseStudies({ data }: SectionProps) {
               </h4>
 
               {/* Uploaded View Image & Document Links - Premium Showcase Block */}
-              {(images.length > 0 || currentProject.externalLink) && (
+              {(images.length > 0 || hasLink) && (
                 <div className="p-5 bg-zinc-50 rounded-xl border border-zinc-200 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-zinc-800 uppercase tracking-widest">
@@ -503,7 +528,7 @@ export function CaseStudies({ data }: SectionProps) {
                     ) : null}
 
                     {/* Outer Link Connect Box - ONLY showing reference button */}
-                    {currentProject.externalLink && (
+                    {hasLink && (
                       <div className="flex justify-center pt-2">
                         <a
                           href={currentProject.externalLink}
