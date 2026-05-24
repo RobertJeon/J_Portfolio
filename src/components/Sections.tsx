@@ -55,12 +55,6 @@ export function HeroSection({ data }: SectionProps) {
       <div className="absolute inset-x-0 top-0 h-full bg-[linear-gradient(to_right,#f4f4f5_1px,transparent_1px),linear-gradient(to_bottom,#f4f4f5_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-70" />
 
       <div className="relative max-w-4xl mx-auto space-y-8 py-16 text-center">
-        {/* Subtitle Accent Pill */}
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-50 border border-zinc-200 text-[11px] font-mono font-bold text-zinc-650 shadow-sm tracking-widest uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-          Product QA Portfolio
-        </div>
-
         {/* Large Main Heading */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-zinc-950 tracking-tight leading-[1.1] text-balance">
           {data.hero.headline}
@@ -89,28 +83,6 @@ export function HeroSection({ data }: SectionProps) {
             </span>
           ))}
         </div>
-
-        {/* CTA triggers */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4.5 pt-4">
-          <button 
-            onClick={() => {
-              const el = document.getElementById("projects");
-              if (el) window.scrollTo({ top: el.offsetTop - 70, behavior: "smooth" });
-            }}
-            className="w-full sm:w-auto px-6 py-3 bg-zinc-950 hover:bg-black text-white rounded-lg text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer transform hover:-translate-y-0.5"
-          >
-            해결사례 검증 프로젝트
-          </button>
-          <button 
-            onClick={() => {
-              const el = document.getElementById("contact");
-              if (el) window.scrollTo({ top: el.offsetTop - 70, behavior: "smooth" });
-            }}
-            className="w-full sm:w-auto px-6 py-3 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 rounded-lg text-xs font-semibold transition cursor-pointer"
-          >
-            연락처 & 이력서 다운로드
-          </button>
-        </div>
       </div>
 
       {/* Down Scroll Anchor */}
@@ -138,11 +110,7 @@ export function CoreStrengths({ data }: SectionProps) {
     <section id="strengths" className="py-24 bg-zinc-50 border-b border-zinc-250/30 px-6 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center md:text-left">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">SECTION 02</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Core Strength</h2>
-          <p className="text-xs text-zinc-500 mt-1">
-            단순 매뉴얼 테스터를 탈피하여 금융 도메인과 실전에 녹여낸 4가지 기술적 강점
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,9 +148,7 @@ export function AboutMe({ data }: SectionProps) {
     <section id="about" className="py-24 bg-white px-6 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center md:text-left mb-10">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">SECTION 03</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">About Me</h2>
-          <p className="text-xs text-zinc-500 mt-1">사용자가 겪을 마지막 한 단계를 완벽히 검증하겠다는 철학</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
@@ -259,18 +225,10 @@ export function CareerTimeline({ data }: SectionProps) {
     <section id="career" className="py-24 bg-zinc-50 border-y border-zinc-200/50 px-6 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center md:text-left">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">SECTION 04</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Career Timeline</h2>
-          <p className="text-xs text-zinc-500 mt-1">
-            엄연한 정합성이 보증되어야 하는 금융 도메인 실증 노하우와 정량적 성과 축적의 이력 명세서
-          </p>
         </div>
 
         <div className="bg-white p-6 sm:p-8 rounded-xl border border-zinc-200 space-y-8 shadow-sm">
-          {/* Brief Highlight Quote */}
-          <div className="text-xs sm:text-sm font-semibold font-serif border-l-2 border-blue-600 pl-4 text-zinc-855 leading-relaxed bg-zinc-50/40 py-2">
-            “금융 시스템에서 사소한 소수점 마진 오진이나 데이터 동시성 꼬임은 즉각 수백 명 유저의 자산 손실 및 브랜드 사법 조치로 직결됩니다. 그렇기에 원장 단위 결제의 완전성을 전제로 검수했습니다.”
-          </div>
 
           {/* Combined Timeline Tracker */}
           <div className="relative border-l border-zinc-200 ml-3.5 space-y-8 py-1">
@@ -386,11 +344,7 @@ export function CaseStudies({ data }: SectionProps) {
     <section id="projects" className="py-24 bg-zinc-50 border-y border-zinc-200/50 px-6 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center md:text-left">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">SECTION 05</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Featured Case Studies</h2>
-          <p className="text-xs text-zinc-500 mt-1">
-            단순 스펙 확인을 넘어, 원인을 입증하고 가혹한 환경을 주도해 해결한 주요 프로젝트
-          </p>
         </div>
 
         {/* Dynamic Project Tabs including Weighted % focus tags */}
@@ -591,11 +545,7 @@ export function WorkingStyle({ data }: SectionProps) {
     <section id="working-style" className="py-24 bg-white px-6 sm:px-8 lg:px-12">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center md:text-left">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">SECTION 06</span>
           <h2 className="text-2xl sm:text-3xl font-bold text-zinc-950 tracking-tight">Working Style</h2>
-          <p className="text-xs text-zinc-500 mt-1">
-            개발자가 즉시 대안 코드를 작성하도록 파트너십 소통을 지어가는 협업 규칙
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -632,15 +582,6 @@ export function ContactSection({ data }: SectionProps) {
       <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
       <div className="max-w-2xl mx-auto space-y-10 relative">
-        <div className="space-y-2">
-          <span className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">SECTION 07 / CONTACT</span>
-          <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-white">
-            사용자 신뢰의 안전지대를 완성합니다
-          </h2>
-          <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-            운영에서 기획과 개발을 연결하여 무장애 릴리즈의 전율을 이룰 준비된 품질 엔지니어입니다. 언제든지 메일 주십시오.
-          </p>
-        </div>
 
         {/* Copy Email Display Card */}
         <div 

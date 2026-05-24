@@ -34,6 +34,7 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: AdminPanelProps) {
+  const [adminId, setAdminId] = useState("");
   const [password, setPassword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -43,15 +44,16 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "1111") {
+    if (adminId === "admin7" && password === "aa00110011!!") {
       setIsAdmin(true);
       setShowPasswordInput(false);
+      setAdminId("");
       setPassword("");
       setErrorMsg("");
       setIsOpen(true);
-      showTemporarySuccess("어드민 편집 권한이 승인되었습니다!");
+      showTemporarySuccess("관리자 권한이 승인되었습니다!");
     } else {
-      setErrorMsg("비밀번호가 틀렸습니다. (힌트: 1111)");
+      setErrorMsg("아이디 또는 비밀번호가 올바르지 않습니다.");
     }
   };
 
@@ -330,30 +332,59 @@ export default function AdminPanel({ data, onChange, isAdmin, setIsAdmin }: Admi
               className="bg-white border border-zinc-200 p-5 rounded-2xl shadow-2xl w-80 flex flex-col gap-3 mt-2 pointer-events-auto"
             >
               <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
-                <Unlock className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
-                비밀번호 입력인증 (1111)
+                <Unlock className="w-3.5 h-3.5 text-blue-600" />
+                관리자 인증 로그인
               </div>
               <p className="text-[11px] text-zinc-500 leading-normal">
-                비밀번호 <span className="font-semibold text-zinc-950">1111</span>를 입력하여 문안을 추가/삭제 및 토글 숨김 상태를 실시간 제어하십시오.
+                시스템 자산 및 포트폴리오 문안 통제를 위해 관리자 인증 정보를 입력해주십시오.
               </p>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="비밀번호(1111)"
-                  className="w-full text-xs px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-950"
-                  autoFocus
-                />
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-[10px] font-semibold text-zinc-500 mb-0.5">아이디 (ID)</label>
+                  <input
+                    type="text"
+                    value={adminId}
+                    onChange={(e) => setAdminId(e.target.value)}
+                    placeholder="ID 입력"
+                    className="w-full text-xs px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-950"
+                    autoFocus
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-zinc-500 mb-0.5">비밀번호 (PW)</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="비밀번호 입력"
+                    className="w-full text-xs px-3 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-950"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordInput(false);
+                    setErrorMsg("");
+                    setAdminId("");
+                    setPassword("");
+                  }}
+                  className="w-1/2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg py-2 text-xs font-bold transition cursor-pointer"
+                >
+                  취소
+                </button>
                 <button
                   type="submit"
-                  className="bg-zinc-950 hover:bg-black text-white rounded-lg px-4 text-xs font-bold shrink-0 cursor-pointer"
+                  className="w-1/2 bg-zinc-950 hover:bg-black text-white rounded-lg py-2 text-xs font-bold transition cursor-pointer"
                 >
-                  확인
+                  로그인
                 </button>
               </div>
               {errorMsg && (
-                <div className="text-[10px] text-red-500 font-bold mt-0.5">{errorMsg}</div>
+                <div className="text-[10px] text-red-500 font-bold mt-0.5 text-center">{errorMsg}</div>
               )}
             </motion.form>
           )}
