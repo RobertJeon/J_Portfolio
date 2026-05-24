@@ -768,7 +768,6 @@ export function ContactSection({ data }: SectionProps) {
         {/* Ultimate bottom footer */}
         <div className="pt-10 border-t border-zinc-900 text-[10px] text-zinc-650 font-mono flex flex-col items-center gap-1.5">
           <span>© {new Date().getFullYear()} PRODUCT QA PORTFOLIO. ALL RIGHTS RESERVED.</span>
-          <span className="text-zinc-750">Designed with Spatial Contrast and Toss Style Minimal Accent</span>
         </div>
       </div>
     </section>
