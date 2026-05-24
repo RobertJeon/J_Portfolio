@@ -1,0 +1,6 @@
+{
+  "name": "Product QA Portfolio",
+  "description": "운영 환경에서 사용자 경험과 배포 안정성을 끝까지 추적하는 Product QA 엔지니어 포트폴리오",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
