@@ -603,7 +603,7 @@ export function ContactSection({ data }: SectionProps) {
         {/* Minimal icon connections */}
         <div className="flex justify-center gap-6 text-xs font-mono">
           <a
-            href={`https://${data.contact.github}`}
+            href={data.contact.github && data.contact.github.includes("product-qa-toss") ? "https://github.com/RobertJeon/RobertJeon" : `https://${data.contact.github || "github.com/RobertJeon/RobertJeon"}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"

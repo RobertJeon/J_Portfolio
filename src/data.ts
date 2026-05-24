@@ -199,7 +199,7 @@ export const defaultPortfolioData: PortfolioData = {
   ],
   contact: {
     email: "jse177@gmail.com",
-    github: "github.com/product-qa-toss",
+    github: "github.com/RobertJeon/RobertJeon",
     linkedin: "linkedin.com/in/product-qa-toss",
     resumeUrl: "#",
     portfolioUrl: "#"
